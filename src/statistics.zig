@@ -596,7 +596,9 @@ fn getLinesChanged(
             try io.sleep(.fromSeconds(delay), .real);
         }
         switch (try item.repo.getLinesChanged(arena, client, self.user)) {
-            .ok => {},
+            // 204 No Content is returned for empty repositories; count them
+            // as zero lines changed instead of failing the whole run
+            .ok, .no_content => {},
             // If we're hitting rate limits on this API, just clone the repo
             // locally to compute lines changed
             // https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api?apiVersion=2026-03-10#rate-limit-errors
